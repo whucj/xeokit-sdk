@@ -803,6 +803,10 @@ class Scene extends Component {
         this.gammaOutput = cfg.gammaOutput;
         this.gammaFactor = cfg.gammaFactor;
 
+        this.brightness = cfg.brightness;
+        this.saturation = cfg.saturation;
+        this.contrast = cfg.contrast;
+
         this._entityOffsetsEnabled = !!cfg.entityOffsetsEnabled;
         this._pickSurfacePrecisionEnabled = !!cfg.pickSurfacePrecisionEnabled;
         this._logarithmicDepthBufferEnabled = !!cfg.logarithmicDepthBufferEnabled;
@@ -1676,6 +1680,45 @@ class Scene extends Component {
      */
     get gammaFactor() {
         return this._renderer.gammaFactor;
+    }
+
+    set brightness(value) {
+        value = (value === undefined || value === null) ? 1.0 : value;
+        if (value === this._renderer.brightness) {
+            return;
+        }
+        this._renderer.brightness = value;
+        this.glRedraw();
+    }
+
+    get brightness() {
+        return this._renderer.brightness;
+    }
+
+    set saturation(value) {
+        value = (value === undefined || value === null) ? 1.0 : value;
+        if (value === this._renderer.saturation) {
+            return;
+        }
+        this._renderer.saturation = value;
+        this.glRedraw();
+    }
+
+    get saturation() {
+        return this._renderer.saturation;
+    }
+
+    set contrast(value) {
+        value = (value === undefined || value === null) ? 1.0 : value;
+        if (value === this._renderer.contrast) {
+            return;
+        }
+        this._renderer.contrast = value;
+        this.glRedraw();
+    }
+
+    get contrast() {
+        return this._renderer.contrast;
     }
 
     /**

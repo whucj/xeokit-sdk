@@ -2,6 +2,7 @@ import {Program} from "../../../../../webgl/Program.js";
 import {math} from "../../../../../math/math.js";
 import {createRTCViewMat, getPlaneRTCPos} from "../../../../../math/rtcCoords.js";
 import {WEBGL_INFO} from "../../../../../webglInfo.js";
+import {colorAdjustment} from "../../../colorAdjustment";
 
 const tempVec4 = math.vec4();
 const tempVec3a = math.vec3();
@@ -207,6 +208,8 @@ class TrianglesInstancingFlatColorRenderer {
         if (scene.logarithmicDepthBufferEnabled) {
             this._uLogDepthBufFC = program.getLocation("logDepthBufFC");
         }
+
+        this._uColorParams = program.getLocation("colorParams");
     }
 
     _bindProgram(frameCtx) {
@@ -259,6 +262,14 @@ class TrianglesInstancingFlatColorRenderer {
         if (scene.logarithmicDepthBufferEnabled) {
             const logDepthBufFC = 2.0 / (Math.log(project.far + 1.0) / Math.LN2);
             gl.uniform1f(this._uLogDepthBufFC, logDepthBufFC);
+        }
+
+        if(this._uColorParams){
+            tempVec4[0] = scene.brightness;
+            tempVec4[1] = scene.saturation;
+            tempVec4[2] = scene.contrast;
+            tempVec4[3] = 1.0;
+            gl.uniform4fv(this._uColorParams,tempVec4);
         }
     }
 
@@ -428,6 +439,8 @@ class TrianglesInstancingFlatColorRenderer {
             }
         }
 
+        colorAdjustment(src);
+
         src.push("varying vec4 vViewPosition;");
         src.push("varying vec4 vColor;");
         
@@ -502,6 +515,8 @@ class TrianglesInstancingFlatColorRenderer {
         } else {
             src.push("    gl_FragColor           = fragColor;");
         }
+
+        src.push("gl_FragColor = brightnessSaturationAndConstrast(gl_FragColor);");
 
         if (scene.logarithmicDepthBufferEnabled && WEBGL_INFO.SUPPORTED_EXTENSIONS["EXT_frag_depth"]) {
             src.push("gl_FragDepthEXT = log2( vFragDepth ) * logDepthBufFC * 0.5;");
